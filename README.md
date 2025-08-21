@@ -1,37 +1,37 @@
-# GitHub Actions for CI/CD
-This is the repository for the LinkedIn Learning course `GitHub Actions for CI/CD`. The full course is available from [LinkedIn Learning][lil-course-url].
+# 02_04 CI for Python
 
-## What You Should Know
-- This is an intermediate level course.  
+# Permissions for Checks
+Permissions are needed to update the Actions interface.  Permissions can be added under the `job` section for a specific job, or at the top of a workflow so all jobs assume the permission.
 
-- You will be expected to already have some experience working with a high-level language like Python, JavaScript, or Go.
+    jobs:
+        build:
+            runs-on: ubuntu-latest
+            permissions:
+                checks: write
 
-- If you’re not an application developer, it will help if you’re familiar with the software development process.  This includes any experience with building, testing, or deploying software applications.
+# JUnit Reporting
+Tests can be updated to include JUnit reports.
 
-- You should be comfortable using the Git version control system and GitHub.  
+Actions can be added to publish JUnit reports to the Actions user interface.
 
-- You will be expected to already have some experience working with GitHub Actions.
+For example, a standard call to `pytest` can be modified from:
 
-- If this is your first time working with GitHub Actions review this course:
-	- [Learning GitHub Actions](https://www.linkedin.com/learning/learning-github-actions-2/)
+    - name: Test with pytest
+      run: |
+        pytest
 
-- Exercise files are available:
-	- [Exercise Files](https://github.com/LinkedInLearning/github-actions-for-ci-cd-4375061)
- 	- Follow the instructions for each chapter for steps to use the files.  For example, you may be asked to create new repositories for demonstrations. 
+to:
 
-## Instructions
-This repository has folders for each of the videos in the course.
 
-### Folders
-The folders are structured to correspond to the videos in the course. The naming convention is `CHAPTER#_MOVIE#`. For example, the folder named `02_03` corresponds to the second chapter and the third video in the second chapter.
+    - name: Test with pytest
+      run: |
+        python -m pytest --verbose --junit-xml=junit.xml
+    - name: Publish Test Report
+      uses: mikepenz/action-junit-report@v3
+      if: success() || failure() # always run even if the previous step fails
+      with:
+        report_paths: '**/junit.xml'
+        detailed_summary: true
+        include_passed: true
 
-## Installing
-1. To use these exercise files, you must have the following installed:
-	- git
-1. Clone this repository into your local machine using the terminal (Mac), CMD (Windows), or a GUI tool like [SourceTree](https://www.sourcetreeapp.com/).
-
-[0]: # (Replace these placeholder URLs with actual course URLs)
-
-[lil-course-url]: https://www.linkedin.com/learning/
-[lil-thumbnail-url]: http://
-:)
+A complete workflow is located here: [./python-ci-workflow.yml](./python-ci-workflow.yml)
